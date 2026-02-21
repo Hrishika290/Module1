@@ -1,0 +1,53 @@
+import java.util.*;
+
+class Bridges {
+
+    private List<List<Integer>> graph;
+    private int[] disc, low;
+    private boolean[] visited;
+    private int time;
+    private List<List<Integer>> bridges;
+
+    public Bridges(int n) {
+        graph = new ArrayList<>();
+        for (int i = 0; i < n; i++)
+            graph.add(new ArrayList<>());
+
+        disc = new int[n];
+        low = new int[n];
+        visited = new boolean[n];
+        bridges = new ArrayList<>();
+    }
+
+    public void addEdge(int u, int v) {
+        graph.get(u).add(v);
+        graph.get(v).add(u);
+    }
+
+    public List<List<Integer>> findBridges() {
+        for (int i = 0; i < graph.size(); i++)
+            if (!visited[i])
+                dfs(i, -1);
+        return bridges;
+    }
+
+    private void dfs(int u, int parent) {
+        visited[u] = true;
+        disc[u] = low[u] = ++time;
+
+        for (int v : graph.get(u)) {
+            if (v == parent) continue;
+
+            if (!visited[v]) {
+                dfs(v, u);
+                low[u] = Math.min(low[u], low[v]);
+
+                if (low[v] > disc[u]) {
+                    bridges.add(Arrays.asList(u, v));
+                }
+            } else {
+                low[u] = Math.min(low[u], disc[v]);
+            }
+        }
+    }
+}

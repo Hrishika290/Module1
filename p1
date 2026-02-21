@@ -1,0 +1,76 @@
+import java.util.*;
+
+class TrieNode {
+    Map<Character, TrieNode> children = new HashMap<>();
+    List<WordFreq> top = new ArrayList<>(); // top 5 words
+}
+
+class WordFreq {
+    String word;
+    int freq;
+
+    WordFreq(String w, int f) {
+        this.word = w;
+        this.freq = f;
+    }
+}
+
+public class Trie {
+
+    private TrieNode root;
+
+    public Trie() {
+        root = new TrieNode();
+    }
+
+    private void updateTop(List<WordFreq> list, String word, int freq) {
+        boolean found = false;
+
+        for (WordFreq wf : list) {
+            if (wf.word.equals(word)) {
+                wf.freq = freq;
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            list.add(new WordFreq(word, freq));
+        }
+
+        list.sort((a, b) -> b.freq - a.freq);
+
+        if (list.size() > 5) {
+            list.remove(list.size() - 1);
+        }
+    }
+
+    public void insert(String word, int freq) {
+        TrieNode node = root;
+
+        for (char c : word.toCharArray()) {
+            node.children.putIfAbsent(c, new TrieNode());
+            node = node.children.get(c);
+
+            updateTop(node.top, word, freq);
+        }
+    }
+
+    public List<String> query(String prefix) {
+        TrieNode node = root;
+
+        for (char c : prefix.toCharArray()) {
+            if (!node.children.containsKey(c)) {
+                return new ArrayList<>();
+            }
+            node = node.children.get(c);
+        }
+
+        List<String> result = new ArrayList<>();
+        for (WordFreq wf : node.top) {
+            result.add(wf.word);
+        }
+
+        return result;
+    }
+}
